@@ -48,11 +48,16 @@ namespace W0T.ReplayAnalyzer
         // get the players (with battle-results)
         public List<Player> Players()
         {
+            if (players.Count > 0)
+            {
+                return players;
+            }
+
             // get the "vehicles" json-part
             JObject vehiclesJson = JObject.Parse(blockOne["vehicles"].ToString());
 
             // for each player in "vehicles"
-            foreach (var player in vehiclesJson.Properties())
+            foreach (var player in vehiclesJson)
             {
                 // create a new instance of Player class
                 Player currentPlayer = new Player();
@@ -61,7 +66,7 @@ namespace W0T.ReplayAnalyzer
                 JObject playerJson = JObject.Parse(player.Value.ToString());
 
                 // STANDARD INFORMATIONS
-                currentPlayer.id = Convert.ToInt32(player.Name);
+                currentPlayer.id = Convert.ToInt32(player.Key);
                 currentPlayer.name = (string)playerJson["name"];
                 currentPlayer.team = (int)playerJson["team"];
                 currentPlayer.vehicle = (string)playerJson["vehicleType"];
@@ -77,7 +82,7 @@ namespace W0T.ReplayAnalyzer
                 if (allresults != null)
                 {
                     // get the right json part
-                    JObject playerresults = JObject.Parse(JArray.Parse(allresults[player.Name].ToString())[0].ToString());
+                    JObject playerresults = JObject.Parse(JArray.Parse(allresults[player.Key].ToString())[0].ToString());
 
                     // create new instance of results
                     results res = new results();
@@ -179,7 +184,10 @@ namespace W0T.ReplayAnalyzer
             MainPlayer myplayer = new MainPlayer();
 
             // start the Players functon to get a list of all players
-            Players();
+            if (players.Count < 1)
+            {
+                Players();
+            }
 
             // for each player in the players list
             foreach (Player player in players)
