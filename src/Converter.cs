@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json.Linq;
 
-namespace W0T.ReplayAnalyzer 
+namespace W0T.ReplayAnalyzer
 {
     //   C O N V E R T E R
     //   The converter gets the json blocks from the replay file
@@ -53,12 +53,20 @@ namespace W0T.ReplayAnalyzer
                 // get the second json Block and convert it to a JArray
                 blockTwo = new byte[lengthBlockTwo];
                 reader.Read(blockTwo, 0, lengthBlockTwo);
-                JArray blockTwoResult = JArray.Parse(Encoding.UTF8.GetString(blockTwo));
+
+                JArray blockTwoResult = null;
+
+                try
+                {
+                    blockTwoResult = JArray.Parse(Encoding.UTF8.GetString(blockTwo));
+                } catch {
+                    isFileOK = 3;
+                }
 
                 // return the results as ReplayJson object
                 return new ReplayJson()
                 {
-                    isFileOK = isFileOK,
+                    isFileOK = isFileOK, // 1 = no, 2 = yes, 3 = blockTwoError
                     BlockOne = blockOneResult,
                     BlockTwo = blockTwoResult
                 };

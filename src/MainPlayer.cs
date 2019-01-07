@@ -20,8 +20,38 @@ namespace W0T.ReplayAnalyzer
         public int team;
         public string vehicle;
         public int preBattleID;
-        public string igrType;
+        public string igrType = null;
         public bool? forbidInBattleInvitations;
+        public bool? hasMods;
+        public numbers results = null;
+        public List<PersonalDetails> details = null;
+    }
+
+    public class PersonalDetails
+    {
+        public string id;
+        public int spotted;
+        public int crits;
+        public int damageAssistedTrack;
+        public int? damageAssistedStun;
+        public int fire;
+        public int deathReason;
+        public int damageReceived;
+        public int damageDealt;
+        public int damageAssistedRadio;
+        public int rickochetsReceived;
+        public double? stunDuration;
+        public int piercings;
+        public int explosionHits;
+        public int damageBlockedByArmor;
+        public int noDamageDirectHitsReceived;
+        public int targetKills;
+        public int? stunNum;
+        public int directHits;
+    }
+
+    public class numbers
+    {
         public int vehTypeLockTime;
         public int? stunned;
         public int creditsToDraw;
@@ -183,30 +213,5 @@ namespace W0T.ReplayAnalyzer
         public int boosterFreeXP;
         public int tdestroyedModules;
         public int battleNum;
-        public bool? hasMods;
-        public List<PersonalDetails> details;
-    }
-
-    public class PersonalDetails
-    {
-        public string id;
-        public int spotted;
-        public int crits;
-        public int damageAssistedTrack;
-        public int? damageAssistedStun;
-        public int fire;
-        public int deathReason;
-        public int damageReceived;
-        public int damageDealt;
-        public int damageAssistedRadio;
-        public int rickochetsReceived;
-        public double? stunDuration;
-        public int piercings;
-        public int explosionHits;
-        public int damageBlockedByArmor;
-        public int noDamageDirectHitsReceived;
-        public int targetKills;
-        public int? stunNum;
-        public int directHits;
     }
 }

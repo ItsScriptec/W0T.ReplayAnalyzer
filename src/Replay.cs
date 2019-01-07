@@ -16,17 +16,25 @@ namespace W0T.ReplayAnalyzer
         JObject blockTwo;
         List<Player> players = new List<Player>();
 
+        public int isFileOK;
+
         // constructor
         public Replay(string replayFilePath)
         {
-            var converter = new Converter(replayFilePath).ToJson();
+            ReplayJson converter = new Converter(replayFilePath).ToJson();
+
+            // check if the file is ok
+            isFileOK = converter.isFileOK;
 
             // get the first json block
             blockOne = converter.BlockOne;
 
             // get the second json block
-            JArray blockTwoArray = JsonConvert.DeserializeObject<JArray>(converter.BlockTwo.ToString());
-            blockTwo = (JObject)blockTwoArray.First;
+            if (converter.isFileOK == 2)
+            {
+                JArray blockTwoArray = JsonConvert.DeserializeObject<JArray>(converter.BlockTwo.ToString());
+                blockTwo = (JObject)blockTwoArray.First;
+            }
         }
 
         // get the settings of the battle
@@ -42,7 +50,7 @@ namespace W0T.ReplayAnalyzer
             set.gameplayID = (string)blockOne["gameplayID"];
             set.battleType = (string)blockOne["battleType"];
 
-            return set;       
+            return set;
         }
 
         // get the players (with battle-results)
@@ -217,240 +225,242 @@ namespace W0T.ReplayAnalyzer
             myplayer.clientVersionFromExe = (string)blockOne["clientVersionFromExe"];
 
             // get the "personal" json part
-            var personal = JObject.Parse(blockTwo.ToString());
-            personal = personal["personal"]?.ToObject<JObject>();
-            personal = personal?.First?.First?.ToObject<JObject>();
-
-            // if the "personal" part is not null (older replays don't have this part)
-            if (personal != null)
+            if (blockTwo != null)
             {
-         ////////// XP
+                var personal = JObject.Parse(blockTwo.ToString());
+                personal = personal["personal"]?.ToObject<JObject>();
+                personal = personal?.First?.First?.ToObject<JObject>();
+
+                numbers res = new numbers();
+
+                ////////// XP
 
                 // XP FACTOR 100
-                myplayer.orderFreeXPFactor100 = (int)personal["orderFreeXPFactor100"];
-                myplayer.orderXPFactor100 = (int)personal["orderXPFactor100"];
-                myplayer.boosterTMenXPFactor100 = (int)personal["boosterTMenXPFactor100"];
-                myplayer.premiumVehicleXPFactor100 = (int?)personal["premiumVehicleXPFactor100"];
-                myplayer.boosterXPFactor100 = (int)personal["boosterXPFactor100"];
-                myplayer.orderTMenXPFactor100 = (int)personal["orderTMenXPFactor100"];
-                myplayer.squadXPFactor100 = (int?)personal["squadXPFactor100"];
-                myplayer.boosterFreeXPFactor100 = (int)personal["boosterFreeXPFactor100"];
+                res.orderFreeXPFactor100 = (int)personal["orderFreeXPFactor100"];
+                res.orderXPFactor100 = (int)personal["orderXPFactor100"];
+                res.boosterTMenXPFactor100 = (int)personal["boosterTMenXPFactor100"];
+                res.premiumVehicleXPFactor100 = (int?)personal["premiumVehicleXPFactor100"];
+                res.boosterXPFactor100 = (int)personal["boosterXPFactor100"];
+                res.orderTMenXPFactor100 = (int)personal["orderTMenXPFactor100"];
+                res.squadXPFactor100 = (int?)personal["squadXPFactor100"];
+                res.boosterFreeXPFactor100 = (int)personal["boosterFreeXPFactor100"];
 
                 // XP FACTOR 10
-                myplayer.premiumXPFactor10 = (int)personal["premiumXPFactor10"];
-                myplayer.igrXPFactor10 = (int)personal["igrXPFactor10"];
-                myplayer.dailyXPFactor10 = (int)personal["dailyXPFactor10"];
-                myplayer.refSystemXPFactor10 = (int)personal["refSystemXPFactor10"];
-                myplayer.appliedPremiumXPFactor10 = (int)personal["appliedPremiumXPFactor10"];
+                res.premiumXPFactor10 = (int)personal["premiumXPFactor10"];
+                res.igrXPFactor10 = (int)personal["igrXPFactor10"];
+                res.dailyXPFactor10 = (int)personal["dailyXPFactor10"];
+                res.refSystemXPFactor10 = (int)personal["refSystemXPFactor10"];
+                res.appliedPremiumXPFactor10 = (int)personal["appliedPremiumXPFactor10"];
 
                 // XP VALUES
-                myplayer.xp = (int)personal["xp"];
-                myplayer.originalXP = (int)personal["originalXP"];
-                myplayer.orderXP = (int)personal["orderXP"];
-                myplayer.achievementXP = (int)personal["achievementXP"];
-                myplayer.eventTMenXP = (int)personal["eventTMenXP"];
-                myplayer.eventXP = (int)personal["eventXP"];
-                myplayer.tmenXP = (int)personal["tmenXP"];
-                myplayer.originalTMenXP = (int)personal["originalTMenXP"];
-                myplayer.subtotalTMenXP = (int)personal["subtotalTMenXP"];
-                myplayer.factualXP = (int)personal["factualXP"];
-                myplayer.eventFreeXP = (int)personal["eventFreeXP"];
-                myplayer.orderFreeXP = (int)personal["orderFreeXP"];
-                myplayer.freeXP = (int)personal["freeXP"];
-                myplayer.subtotalFreeXP = (int)personal["subtotalFreeXP"];
-                myplayer.originalFreeXP = (int)personal["originalFreeXP"];
-                myplayer.achievementFreeXP = (int)personal["achievementFreeXP"];
-                myplayer.orderTMenXP = (int)personal["orderTMenXP"];
-                myplayer.boosterTMenXP = (int)personal["boosterTMenXP"];
-                myplayer.boosterXP = (int)personal["boosterXP"];
-                myplayer.boosterFreeXP = (int)personal["boosterFreeXP"];
-                myplayer.subtotalXP = (int)personal["subtotalXP"];
-                myplayer.squadXP = (int?)personal["squadXP"];
-                myplayer.premiumVehicleXP = (int)personal["premiumVehicleXP"];
-                myplayer.factualFreeXP = (int)personal["factualFreeXP"];
+                res.xp = (int)personal["xp"];
+                res.originalXP = (int)personal["originalXP"];
+                res.orderXP = (int)personal["orderXP"];
+                res.achievementXP = (int)personal["achievementXP"];
+                res.eventTMenXP = (int)personal["eventTMenXP"];
+                res.eventXP = (int)personal["eventXP"];
+                res.tmenXP = (int)personal["tmenXP"];
+                res.originalTMenXP = (int)personal["originalTMenXP"];
+                res.subtotalTMenXP = (int)personal["subtotalTMenXP"];
+                res.factualXP = (int)personal["factualXP"];
+                res.eventFreeXP = (int)personal["eventFreeXP"];
+                res.orderFreeXP = (int)personal["orderFreeXP"];
+                res.freeXP = (int)personal["freeXP"];
+                res.subtotalFreeXP = (int)personal["subtotalFreeXP"];
+                res.originalFreeXP = (int)personal["originalFreeXP"];
+                res.achievementFreeXP = (int)personal["achievementFreeXP"];
+                res.orderTMenXP = (int)personal["orderTMenXP"];
+                res.boosterTMenXP = (int)personal["boosterTMenXP"];
+                res.boosterXP = (int)personal["boosterXP"];
+                res.boosterFreeXP = (int)personal["boosterFreeXP"];
+                res.subtotalXP = (int)personal["subtotalXP"];
+                res.squadXP = (int?)personal["squadXP"];
+                res.premiumVehicleXP = (int)personal["premiumVehicleXP"];
+                res.factualFreeXP = (int)personal["factualFreeXP"];
 
                 // XP PENALTY
-                myplayer.originalXPPenalty = (int)personal["originalXPPenalty"];
-                myplayer.xpPenalty = (int)personal["xpPenalty"];
+                res.originalXPPenalty = (int)personal["originalXPPenalty"];
+                res.xpPenalty = (int)personal["xpPenalty"];
 
                 // XP REPLAY
-                myplayer.freeXPReplay = (int?)personal["freeXPReplay"];
-                myplayer.xpReplay = (int?)personal["xpReplay"];
-                myplayer.tmenXPReplay = (int?)personal["tmenXPReplay"];
+                res.freeXPReplay = (int?)personal["freeXPReplay"];
+                res.xpReplay = (int?)personal["xpReplay"];
+                res.tmenXPReplay = (int?)personal["tmenXPReplay"];
 
                 // XP LISTS
-                myplayer.eventXPList = personal["eventXPList"].ToObject<int[]>();
-                myplayer.eventFreeXPList = personal["eventFreeXPList"].ToObject<int[]>();
-                myplayer.eventTMenXPList = personal["eventTMenXPList"].ToObject<int[]>();
-                myplayer.eventXPFactor100List = (object)personal["eventXPFactor100List"];
-                myplayer.eventFreeXPFactor100List = personal["eventFreeXPFactor100List"].ToObject<int[]>();
-                myplayer.eventTMenXPFactor100List = (object)personal["eventTMenXPFactor100List"];
-                myplayer.xpByTmen = personal["xpByTmen"].ToObject<int[][]>();
+                res.eventXPList = personal["eventXPList"].ToObject<int[]>();
+                res.eventFreeXPList = personal["eventFreeXPList"].ToObject<int[]>();
+                res.eventTMenXPList = personal["eventTMenXPList"].ToObject<int[]>();
+                res.eventXPFactor100List = (object)personal["eventXPFactor100List"];
+                res.eventFreeXPFactor100List = personal["eventFreeXPFactor100List"].ToObject<int[]>();
+                res.eventTMenXPFactor100List = (object)personal["eventTMenXPFactor100List"];
+                res.xpByTmen = personal["xpByTmen"].ToObject<int[][]>();
 
-         ////////// CREDITS
+                ////////// CREDITS
 
                 // CREDIT FACTOR 100
-                myplayer.boosterCreditsFactor100 = (int)personal["boosterCreditsFactor100"];
-                myplayer.orderCreditsFactor100 = (int)personal["orderCreditsFactor100"];
+                res.boosterCreditsFactor100 = (int)personal["boosterCreditsFactor100"];
+                res.orderCreditsFactor100 = (int)personal["orderCreditsFactor100"];
 
                 // CREDIT FACTOR 10
-                myplayer.premiumCreditsFactor10 = (int)personal["premiumCreditsFactor10"];
-                myplayer.appliedPremiumCreditsFactor10 = (int)personal["appliedPremiumCreditsFactor10"];
+                res.premiumCreditsFactor10 = (int)personal["premiumCreditsFactor10"];
+                res.appliedPremiumCreditsFactor10 = (int)personal["appliedPremiumCreditsFactor10"];
 
                 // CREDIT VALUES
-                myplayer.credits = (int)personal["credits"];
-                myplayer.originalCredits = (int)personal["originalCredits"];
-                myplayer.boosterCredits = (int)personal["boosterCredits"];
-                myplayer.creditsToDraw = (int)personal["creditsToDraw"];
-                myplayer.originalCreditsToDraw = (int?)personal["originalCreditsToDraw"];
-                myplayer.eventCredits = (int)personal["eventCredits"];
-                myplayer.orderCredits = (int)personal["orderCredits"];
-                myplayer.factualCredits = (int)personal["factualCredits"];
-                myplayer.subtotalCredits = (int)personal["subtotalCredits"];
-                myplayer.creditsReplay = (int?)personal["creditsReplay"];
-                myplayer.achievementCredits = (int)personal["achievementCredits"];
+                res.credits = (int)personal["credits"];
+                res.originalCredits = (int)personal["originalCredits"];
+                res.boosterCredits = (int)personal["boosterCredits"];
+                res.creditsToDraw = (int)personal["creditsToDraw"];
+                res.originalCreditsToDraw = (int?)personal["originalCreditsToDraw"];
+                res.eventCredits = (int)personal["eventCredits"];
+                res.orderCredits = (int)personal["orderCredits"];
+                res.factualCredits = (int)personal["factualCredits"];
+                res.subtotalCredits = (int)personal["subtotalCredits"];
+                res.creditsReplay = (int?)personal["creditsReplay"];
+                res.achievementCredits = (int)personal["achievementCredits"];
 
                 // CREDIT PENALTY
-                myplayer.originalCreditsPenalty = (int)personal["originalCreditsPenalty"];
-                myplayer.creditsPenalty = (int)personal["creditsPenalty"];
+                res.originalCreditsPenalty = (int)personal["originalCreditsPenalty"];
+                res.creditsPenalty = (int)personal["creditsPenalty"];
 
                 // CREDIT CONTRIBUTION
-                myplayer.creditsContributionIn = (int)personal["creditsContributionIn"];
-                myplayer.creditsContributionOut = (int)personal["creditsContributionOut"];
-                myplayer.originalCreditsContributionIn = (int)personal["originalCreditsContributionIn"];
-                myplayer.originalCreditsContributionOut = (int)personal["originalCreditsContributionOut"];
+                res.creditsContributionIn = (int)personal["creditsContributionIn"];
+                res.creditsContributionOut = (int)personal["creditsContributionOut"];
+                res.originalCreditsContributionIn = (int)personal["originalCreditsContributionIn"];
+                res.originalCreditsContributionOut = (int)personal["originalCreditsContributionOut"];
 
                 // CREDIT LISTS
-                myplayer.eventCreditsList = personal["eventCreditsList"].ToObject<int[]>();
-                myplayer.eventCreditsFactor100List = personal["eventCreditsFactor100List"].ToObject<int[]>();
+                res.eventCreditsList = personal["eventCreditsList"].ToObject<int[]>();
+                res.eventCreditsFactor100List = personal["eventCreditsFactor100List"].ToObject<int[]>();
 
-         ////////// DID
+                ////////// DID
 
                 // SHOTS
-                myplayer.shots = (int)personal["shots"];
-                myplayer.directHits = (int)personal["directHits"];
-                myplayer.explosionHits = (int)personal["explosionHits"];
-                myplayer.piercings = (int)personal["piercings"];
-                myplayer.damagedWhileMoving = (int)personal["damagedWhileMoving"];
-                myplayer.damagedWhileEnemyMoving = (int)personal["damagedWhileEnemyMoving"];
-                myplayer.killedAndDamagedByAllSquadmates = (int)personal["killedAndDamagedByAllSquadmates"];
-                myplayer.killsBeforeTeamWasDamaged = (int)personal["killsBeforeTeamWasDamaged"];
-                myplayer.damaged = (int)personal["damaged"];
-                myplayer.kills = (int)personal["kills"];
+                res.shots = (int)personal["shots"];
+                res.directHits = (int)personal["directHits"];
+                res.explosionHits = (int)personal["explosionHits"];
+                res.piercings = (int)personal["piercings"];
+                res.damagedWhileMoving = (int)personal["damagedWhileMoving"];
+                res.damagedWhileEnemyMoving = (int)personal["damagedWhileEnemyMoving"];
+                res.killedAndDamagedByAllSquadmates = (int)personal["killedAndDamagedByAllSquadmates"];
+                res.killsBeforeTeamWasDamaged = (int)personal["killsBeforeTeamWasDamaged"];
+                res.damaged = (int)personal["damaged"];
+                res.kills = (int)personal["kills"];
 
                 // DAMAGE
-                myplayer.percentFromTotalTeamDamage = (double)personal["percentFromTotalTeamDamage"];
-                myplayer.percentFromSecondBestDamage = (double)personal["percentFromSecondBestDamage"];
-                myplayer.damageRating = (int)personal["damageRating"];
-                myplayer.damageEventList = (int?)personal["damageEventList"];
-                myplayer.damageDealt = (int)personal["damageDealt"];
-                myplayer.sniperDamageDealt = (int)personal["sniperDamageDealt"];
-                myplayer.movingAvgDamage = (int)personal["movingAvgDamage"];
-                myplayer.damageBeforeTeamWasDamaged = (int)personal["damageBeforeTeamWasDamaged"];
-                myplayer.avatarDamageEventList = personal["avatarDamageEventList"].ToObject<int?[]>();
+                res.percentFromTotalTeamDamage = (double)personal["percentFromTotalTeamDamage"];
+                res.percentFromSecondBestDamage = (double)personal["percentFromSecondBestDamage"];
+                res.damageRating = (int)personal["damageRating"];
+                res.damageEventList = (int?)personal["damageEventList"];
+                res.damageDealt = (int)personal["damageDealt"];
+                res.sniperDamageDealt = (int)personal["sniperDamageDealt"];
+                res.movingAvgDamage = (int)personal["movingAvgDamage"];
+                res.damageBeforeTeamWasDamaged = (int)personal["damageBeforeTeamWasDamaged"];
+                res.avatarDamageEventList = personal["avatarDamageEventList"].ToObject<int?[]>();
 
                 // AT TEAM
-                myplayer.tdamageDealt = (int)personal["tdamageDealt"];
-                myplayer.tkills = (int)personal["tkills"];
-                myplayer.isTeamKiller = (bool)personal["isTeamKiller"];
-                myplayer.tdestroyedModules = (int)personal["tdestroyedModules"];
-                myplayer.directTeamHits = (int)personal["directTeamHits"];
+                res.tdamageDealt = (int)personal["tdamageDealt"];
+                res.tkills = (int)personal["tkills"];
+                res.isTeamKiller = (bool)personal["isTeamKiller"];
+                res.tdestroyedModules = (int)personal["tdestroyedModules"];
+                res.directTeamHits = (int)personal["directTeamHits"];
 
                 // ASSISTED
-                myplayer.damageAssistedTrack = (int)personal["damageAssistedTrack"];
-                myplayer.damageAssistedRadio = (int)personal["damageAssistedRadio"];
-                myplayer.spotted = (int)personal["spotted"];
-                myplayer.damageAssistedStun = (int?)personal["damageAssistedStun"];
-                myplayer.stunned = (int?)personal["stunned"];
-                myplayer.stunDuration = (int?)personal["stunDuration"];
-                myplayer.stunNum = (int?)personal["stunNum"];
+                res.damageAssistedTrack = (int)personal["damageAssistedTrack"];
+                res.damageAssistedRadio = (int)personal["damageAssistedRadio"];
+                res.spotted = (int)personal["spotted"];
+                res.damageAssistedStun = (int?)personal["damageAssistedStun"];
+                res.stunned = (int?)personal["stunned"];
+                res.stunDuration = (int?)personal["stunDuration"];
+                res.stunNum = (int?)personal["stunNum"];
 
                 // FLAG
-                myplayer.flagActions = personal["flagActions"].ToObject<int[]>();
-                myplayer.flagCapture = (int)personal["flagCapture"];
-                myplayer.capturePoints = (int)personal["capturePoints"];
-                myplayer.droppedCapturePoints = (int)personal["droppedCapturePoints"];
-                myplayer.capturingBase = (int?)personal["capturingBase"];
-                myplayer.soloFlagCapture = (int)personal["soloFlagCapture"];
+                res.flagActions = personal["flagActions"].ToObject<int[]>();
+                res.flagCapture = (int)personal["flagCapture"];
+                res.capturePoints = (int)personal["capturePoints"];
+                res.droppedCapturePoints = (int)personal["droppedCapturePoints"];
+                res.capturingBase = (int?)personal["capturingBase"];
+                res.soloFlagCapture = (int)personal["soloFlagCapture"];
 
-         ///////// RECEIVED & BLOCKED
+                ///////// RECEIVED & BLOCKED
 
                 // SHOTS
-                myplayer.noDamageDirectHitsReceived = (int)personal["noDamageDirectHitsReceived"];
-                myplayer.directHitsReceived = (int)personal["directHitsReceived"];
-                myplayer.piercingsReceived = (int)personal["piercingsReceived"];
-                myplayer.explosionHitsReceived = (int)personal["explosionHitsReceived"];
+                res.noDamageDirectHitsReceived = (int)personal["noDamageDirectHitsReceived"];
+                res.directHitsReceived = (int)personal["directHitsReceived"];
+                res.piercingsReceived = (int)personal["piercingsReceived"];
+                res.explosionHitsReceived = (int)personal["explosionHitsReceived"];
 
                 // DAMAGE
-                myplayer.damageReceivedFromInvisibles = (int?)personal["damageReceivedFromInvisibles"];
-                myplayer.damageBlockedByArmor = (int)personal["damageBlockedByArmor"];
-                myplayer.potentialDamageReceived = (int)personal["potentialDamageReceived"];
-                myplayer.damageReceived = (int)personal["damageReceived"];
+                res.damageReceivedFromInvisibles = (int?)personal["damageReceivedFromInvisibles"];
+                res.damageBlockedByArmor = (int)personal["damageBlockedByArmor"];
+                res.potentialDamageReceived = (int)personal["potentialDamageReceived"];
+                res.damageReceived = (int)personal["damageReceived"];
 
-         ////////// OTHERS
+                ////////// OTHERS
 
                 // GOLD
-                myplayer.originalGold = (int)personal["originalGold"];
-                myplayer.eventGoldFactor100List = personal["eventGoldFactor100List"].ToObject<int[]>();
-                myplayer.eventGoldList = personal["eventGoldList"].ToObject<int[]>();
-                myplayer.goldReplay = (int?)personal["goldReplay"];
-                myplayer.eventGold = (int)personal["eventGold"];
-                myplayer.gold = (int)personal["gold"];
-                myplayer.subtotalGold = (int)personal["subtotalGold"];
+                res.originalGold = (int)personal["originalGold"];
+                res.eventGoldFactor100List = personal["eventGoldFactor100List"].ToObject<int[]>();
+                res.eventGoldList = personal["eventGoldList"].ToObject<int[]>();
+                res.goldReplay = (int?)personal["goldReplay"];
+                res.eventGold = (int)personal["eventGold"];
+                res.gold = (int)personal["gold"];
+                res.subtotalGold = (int)personal["subtotalGold"];
 
                 // MARKS
-                myplayer.markOfMastery = (int)personal["markOfMastery"];
-                myplayer.marksOnGun = (int)personal["marksOnGun"];
-                myplayer.prevMarkOfMastery = (int)personal["prevMarkOfMastery"];
+                res.markOfMastery = (int)personal["markOfMastery"];
+                res.marksOnGun = (int)personal["marksOnGun"];
+                res.prevMarkOfMastery = (int)personal["prevMarkOfMastery"];
 
                 // DEATH & HP
-                myplayer.deathCount = (int)personal["deathCount"];
-                myplayer.lifeTime = (int)personal["lifeTime"];
-                myplayer.deathReason = (int)personal["deathReason"];
-                myplayer.health = (int)personal["health"];
-                myplayer.committedSuicide = (bool)personal["committedSuicide"];
-                myplayer.killerID = (int)personal["killerID"];
+                res.deathCount = (int)personal["deathCount"];
+                res.lifeTime = (int)personal["lifeTime"];
+                res.deathReason = (int)personal["deathReason"];
+                res.health = (int)personal["health"];
+                res.committedSuicide = (bool)personal["committedSuicide"];
+                res.killerID = (int)personal["killerID"];
 
                 // CRYSTAL
-                myplayer.originalCrystal = (int?)personal["originalCrystal"];
-                myplayer.crystal = (int?)personal["crystal"];
-                myplayer.crystalReplay = (int?)personal["crystalReplay"];
-                myplayer.subtotalCrystal = (int?)personal["subtotalCrystal"];
-                myplayer.eventCrystalList = personal["eventCrystalList"]?.ToObject<string[][]>();
-                myplayer.eventCrystal = (int?)personal["eventCrystal"];
+                res.originalCrystal = (int?)personal["originalCrystal"];
+                res.crystal = (int?)personal["crystal"];
+                res.crystalReplay = (int?)personal["crystalReplay"];
+                res.subtotalCrystal = (int?)personal["subtotalCrystal"];
+                res.eventCrystalList = personal["eventCrystalList"]?.ToObject<string[][]>();
+                res.eventCrystal = (int?)personal["eventCrystal"];
 
                 // COSTS
-                myplayer.autoEquipCost = personal["autoEquipCost"].ToObject<int[]>();
-                myplayer.autoLoadCost = personal["autoLoadCost"].ToObject<int[]>();
-                myplayer.autoRepairCost = (int)personal["autoRepairCost"];
-                myplayer.repair = (int)personal["repair"];
+                res.autoEquipCost = personal["autoEquipCost"].ToObject<int[]>();
+                res.autoLoadCost = personal["autoLoadCost"].ToObject<int[]>();
+                res.autoRepairCost = (int)personal["autoRepairCost"];
+                res.repair = (int)personal["repair"];
 
                 // OTHERS
-                myplayer.vehTypeLockTime = (int)personal["vehTypeLockTime"];
-                myplayer.winPoints = (int)personal["winPoints"];
-                myplayer.stopRespawn = (bool)personal["stopRespawn"];
-                myplayer.aogasFactor10 = (int)personal["aogasFactor10"];
-                myplayer.extPublic = personal["extPublic"];
-                myplayer.resourceAbsorbed = (int)personal["resourceAbsorbed"];
-                myplayer.fairplayFactor10 = (int)personal["fairplayFactor10"];
-                myplayer.serviceProviderID = (int)personal["serviceProviderID"];
-                myplayer.typeCompDescr = (int)personal["typeCompDescr"];            
-                myplayer.questsProgress = (object)personal["questsProgress"];
-                myplayer.achievements = personal["achievements"].ToObject<int[]>();
-                myplayer.dossierPopUps = personal["dossierPopUps"].ToObject<object>();
-                myplayer.isPremium = (bool)personal["isPremium"];
-                myplayer.mileage = (int)personal["mileage"];
-                myplayer.rolloutsCount = (int)personal["rolloutsCount"];
-                myplayer.index = (int)personal["index"];
-                myplayer.accountDBID = (int)personal["accountDBID"];
-                myplayer.battleNum = (int)personal["battleNum"];
+                res.vehTypeLockTime = (int)personal["vehTypeLockTime"];
+                res.winPoints = (int)personal["winPoints"];
+                res.stopRespawn = (bool)personal["stopRespawn"];
+                res.aogasFactor10 = (int)personal["aogasFactor10"];
+                res.extPublic = personal["extPublic"];
+                res.resourceAbsorbed = (int)personal["resourceAbsorbed"];
+                res.fairplayFactor10 = (int)personal["fairplayFactor10"];
+                res.serviceProviderID = (int)personal["serviceProviderID"];
+                res.typeCompDescr = (int)personal["typeCompDescr"];
+                res.questsProgress = (object)personal["questsProgress"];
+                res.achievements = personal["achievements"].ToObject<int[]>();
+                res.dossierPopUps = personal["dossierPopUps"].ToObject<object>();
+                res.isPremium = (bool)personal["isPremium"];
+                res.mileage = (int)personal["mileage"];
+                res.rolloutsCount = (int)personal["rolloutsCount"];
+                res.index = (int)personal["index"];
+                res.accountDBID = (int)personal["accountDBID"];
+                res.battleNum = (int)personal["battleNum"];
 
+                myplayer.results = res;
 
                 // create list for each player where the mainplayer did something
                 List<PersonalDetails> personalDetails = new List<PersonalDetails>();
 
                 // for each player in the mainplayers "details"
-                foreach (JToken item in personal["details"])
+                foreach (JToken item in personal?["details"])
                 {
                     // get the right json part for player
                     JObject myitem = JObject.Parse(item.First.ToString());
